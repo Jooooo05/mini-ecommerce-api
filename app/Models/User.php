@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,6 +23,12 @@ class User extends Authenticatable
         'email',
         'password',
     ];
+
+    // Relasi to CartItem (one-to-many)
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
