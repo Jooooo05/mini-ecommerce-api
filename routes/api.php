@@ -19,7 +19,7 @@ Route::middleware('auth:sanctum')->group(function (){
 
     Route::prefix('cart')->controller(CartController::class)->group(function () {
         Route::get('/', 'viewCart');                 // GET /cart
-        Route::post('/', 'addItem');                 // POST /cart
+        Route::post('/', 'addItem');                 // POST /cart in this route i add item to cart adn update quantity if items already exists
         Route::delete('/{id}', 'removeItem');        // DELETE /cart/{id}
     });
 
