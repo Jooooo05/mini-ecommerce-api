@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ItemController;
 
 Route::get('/coba', function(){
     return 'oke';
@@ -15,8 +16,18 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->get('/logout', [AuthController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->group(function (){
-    Route::get('/cart', [CartController::class, 'viewCart']);
-    Route::post('/cart', [CartController::class, 'addItem']);
-    Route::put('/cart/{id}', [CartController::class, 'updateItem']);
-    Route::delete('/cart/{id}', [CartController::class, 'removeItem']);
+
+    Route::prefix('cart')->controller(CartController::class)->group(function () {
+        Route::get('/', 'viewCart');                 // GET /cart
+        Route::post('/', 'addItem');                 // POST /cart
+        Route::delete('/{id}', 'removeItem');        // DELETE /cart/{id}
+    });
+
+    Route::prefix('items')->controller(ItemController::class)->group(function () {
+        Route::get('/', 'viewItem');                // GET /items
+        Route::post('/', 'createItem');             // POST /items
+        Route::get('{id}', 'show');                 // GET /items/{id}
+        Route::put('{id}', 'updateItem');         // PUT /items/{item}
+        Route::delete('{id}', 'deleteItem');      // DELETE /items/{item}
+    });
 });

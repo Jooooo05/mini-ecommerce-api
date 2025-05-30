@@ -11,9 +11,8 @@ class CartItem extends Model
 
     protected $fillable = [
         'user_id',
-        'product_name',
+        'item_id',
         'quantity',
-        'price',
     ];
 
     // Relasi to User (many-to-one)

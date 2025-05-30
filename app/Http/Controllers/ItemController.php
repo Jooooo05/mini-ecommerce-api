@@ -8,58 +8,79 @@ use Illuminate\Http\Request;
 class ItemController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Get all items
      */
-    public function index()
+    public function viewItem()
     {
-        //
+        $items = Item::all();
+
+        return response()->json([
+            'data' => $items,
+        ]);
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Create item
      */
-    public function create()
+    public function createItem(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+        ]);
+
+        $item = Item::create($validated);
+
+        return response()->json([
+            'message' => 'Item created successfully.',
+            'data' => $item,
+        ], 201);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Get single itmem by ID
      */
-    public function store(Request $request)
+    public function show($id)
     {
-        //
+        $item = Item::findOrFail($id);
+
+        return response()->json([
+            'data' => $item,
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Update item by ID
      */
-    public function show(Item $item)
+    public function updateItem(Request $request, $id)
     {
-        //
+        $item = Item::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'price' => 'sometimes|required|numeric|min:0',
+            'description' => 'nullable|string',
+        ]);
+
+        $item->update($validated);
+
+        return response()->json([
+            'message' => 'Item updated successfully.',
+            'data' => $item,
+        ]);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Soft delete item by ID
      */
-    public function edit(Item $item)
+    public function deleteItem( $id)
     {
-        //
-    }
+        $item = Item::findOrFail($id);
+        $item->delete();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Item $item)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Item $item)
-    {
-        //
+        return response()->json([
+            'message' => 'Item deleted (soft) successfully.',
+        ]);
     }
 }

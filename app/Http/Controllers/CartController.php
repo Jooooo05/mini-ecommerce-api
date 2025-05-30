@@ -25,20 +25,30 @@ class CartController extends Controller
     // 🔸 Tambah item ke keranjang
     public function addItem(Request $request)
     {
-        $validated = $request->validate([
+        $item = $request->validate([
             'item_id' => 'required|exists:items,id',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $cartItem = CartItem::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'item_id' => $validated['item_id'],
-            ],
-            [
-                'quantity' => DB::raw('quantity + ' . $validated['quantity']),
-            ]
-        );
+        $userId = Auth::id();
+
+        $existingItem = CartItem::where('user_id', $userId)
+            ->where('item_id', $item['item_id'])
+            ->first();
+
+        if ($existingItem) {
+            // Kalau sudah ada, update jumlah
+            $existingItem->quantity += $item['quantity'];
+            $existingItem->save();
+            $cartItem = $existingItem;
+        } else {
+            // Kalau belum ada, langsung buat
+            $cartItem = CartItem::create([
+                'user_id' => $userId,
+                'item_id' => $item['item_id'],
+                'quantity' => $item['quantity'],
+            ]);
+        }
 
         return response()->json([
             'message' => 'Item added to cart',
@@ -47,23 +57,23 @@ class CartController extends Controller
     }
 
     // 🔸 Update jumlah item di keranjang
-    public function updateItem(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'quantity' => 'required|integer|min:1',
-        ]);
+    // public function updateItem(Request $request, $id)
+    // {
+    //     $validated = $request->validate([
+    //         'quantity' => 'required|integer|min:1',
+    //     ]);
 
-        $item = CartItem::where('id', $id)
-                        ->where('user_id', Auth::id())
-                        ->firstOrFail();
+    //     $item = CartItem::where('id', $id)
+    //                     ->where('user_id', Auth::id())
+    //                     ->firstOrFail();
 
-        $item->update(['quantity' => $validated['quantity']]);
+    //     $item->update(['quantity' => $validated['quantity']]);
 
-        return response()->json([
-            'message' => 'Item quantity updated',
-            'data' => $item->load('item')
-        ]);
-    }
+    //     return response()->json([
+    //         'message' => 'Item quantity updated',
+    //         'data' => $item->load('item')
+    //     ]);
+    // }
 
     // 🔸 Hapus item dari keranjang (soft delete)
     public function removeItem($id)
